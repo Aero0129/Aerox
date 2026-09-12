@@ -75,6 +75,20 @@
       .replaceAll("'", "&#039;");
   }
 
+  function displayCategory(category) {
+    const value = clean(category);
+    const normalized = value.toLowerCase();
+
+    if (
+      normalized === "digital signal boards" ||
+      normalized === "digital signal modules"
+    ) {
+      return "";
+    }
+
+    return value;
+  }
+
   function fmtTime(d = new Date()) {
     return new Intl.DateTimeFormat("zh-TW", {
       year: "numeric",
@@ -564,7 +578,6 @@
         <div class="product-main">
           ${partNumberWithCopy(p.partNo, "h3")}
           <p class="desc">${esc(p.description || "S7-1200 G2 產品")}</p>
-          ${p.category ? `<div class="category">${esc(p.category)}</div>` : ""}
         </div>
         ${specGrid(p)}
       </article>
