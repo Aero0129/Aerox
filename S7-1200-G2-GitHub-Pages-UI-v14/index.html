@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="S7-1200 G2 產品查詢工具">
+  <title>S7-1200 G2 產品查詢工具</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <div class="site-mark">S7-1200 G2 Finder</div>
+
+      <nav class="desktop-nav" aria-label="主要導覽">
+        <button class="nav-link active" type="button" data-scroll="finder">產品查詢</button>
+        <button class="nav-link" type="button" data-scroll="help">使用說明</button>
+        <button class="nav-link" type="button" data-scroll="faq">常見問題</button>
+      </nav>
+
+      <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="選單">☰</button>
+    </div>
+  </header>
+
+  <main class="container page-shell">
+    <section class="hero" id="finder">
+      <div class="hero-copy">
+        <h1>S7-1200 G2 產品查詢工具</h1>
+        <p>輸入規格或料號，快速找到新舊對照與建議產品。</p>
+      </div>
+    </section>
+
+    <section class="finder-card">
+      <div class="mode-tabs" role="tablist" aria-label="查詢方式">
+        <button class="mode-tab active" id="tabIo" type="button" role="tab" aria-selected="true">
+          <span class="tab-symbol">⌕</span>
+          依 I/O 規格查詢
+        </button>
+
+        <button class="mode-tab" id="tabMlfb" type="button" role="tab" aria-selected="false">
+          <span class="tab-symbol">▤</span>
+          依 MLFB / 料號查詢
+        </button>
+      </div>
+
+      <div class="mode-panel active" id="panelIo">
+        <form id="ioForm" class="desktop-search-grid">
+          <label class="io-input">
+            <span>DI</span>
+            <input id="ioDI" type="number" min="0" step="1" inputmode="numeric" placeholder="—">
+          </label>
+
+          <label class="io-input">
+            <span>DO</span>
+            <input id="ioDO" type="number" min="0" step="1" inputmode="numeric" placeholder="—">
+          </label>
+
+          <label class="io-input">
+            <span>AI</span>
+            <input id="ioAI" type="number" min="0" step="1" inputmode="numeric" placeholder="—">
+          </label>
+
+          <label class="io-input">
+            <span>AO</span>
+            <input id="ioAO" type="number" min="0" step="1" inputmode="numeric" placeholder="—">
+          </label>
+
+          <button class="search-btn" type="submit">
+            <span>⌕</span>
+            搜尋
+          </button>
+        </form>
+
+        <p class="search-hint">輸入您需要的 I/O 數量，可留白；只會顯示G2模組的料號，無CPU。</p>
+      </div>
+
+      <div class="mode-panel" id="panelMlfb" hidden>
+        <form id="mlfbForm" class="mlfb-search-row">
+          <label class="mlfb-field">
+            <span class="search-symbol">⌕</span>
+            <input id="mlfbInput" type="search" placeholder="輸入舊 MLFB / 料號，例如 6ES7211-1AE40-0XB0" autocomplete="off" spellcheck="false">
+          </label>
+
+          <button class="search-btn" type="submit">
+            <span>⌕</span>
+            搜尋
+          </button>
+        </form>
+
+        <p class="search-hint">支援完整料號、部分料號，也會自動忽略空格、連字號與大小寫差異。</p>
+      </div>
+    </section>
+
+    <section class="result-section" aria-live="polite">
+      <div class="result-title-row">
+        <div class="result-title-left">
+          <h2>搜尋結果</h2>
+          <span id="resultCount">尚未搜尋</span>
+        </div>
+
+        <label class="sort-control" id="sortWrap">
+          <span>排序方式</span>
+          <select id="sortSelect">
+            <option value="best">建議優先</option>
+            <option value="part">料號</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="messageBox" class="info-box">
+        <span class="info-icon">i</span>
+        <div>
+          <strong>請先輸入查詢條件</strong>
+          <p>可依 I/O 規格或舊 MLFB / 料號進行搜尋。</p>
+        </div>
+      </div>
+
+      <div id="results" class="result-list"></div>
+    </section>
+
+    <section class="bottom-help" id="help">
+      <div class="bottom-help-icon">i</div>
+      <div>
+        <strong>找不到合適的產品？</strong>
+        <span>可以調整 I/O 數量，或改用「依 MLFB / 料號查詢」尋找對應產品。</span>
+      </div>
+      <button id="switchSearchBtn" type="button">切換查詢方式 →</button>
+    </section>
+
+    <section class="status-card" aria-live="polite">
+      <div class="db-status-line">
+        <span class="status-dot loading" id="statusDot"></span>
+        <span id="statusText">正在同步資料...</span>
+      </div>
+      <button id="reloadDataBtn" class="reload-btn" type="button">重新同步</button>
+    </section>
+
+    <section class="faq-block" id="faq">
+      <h2>常見問題</h2>
+      <details>
+        <summary>資料多久更新一次？沒有網路也可以使用嗎？</summary>
+        <p>每次開啟網頁時，系統會自動取得最新資料並更新本機快取。若沒有網路，會自動使用上一次成功下載的資料，因此只要曾在有網路時成功開啟過網站，之後即使離線仍可繼續查詢。</p>
+      </details>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="footer-left">
+        <div class="footer-disclaimer">
+          選型結果僅供參考，請以官方產品規格與技術文件為準。
+        </div>
+        <span id="footerUpdate" hidden></span>
+      </div>
+
+      <div class="footer-copyright">Copyright ©Chen, Ching Hung</div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
