@@ -339,7 +339,7 @@ button { cursor: pointer; }
   color: #285a82;
 }
 
-.info-box[hidden] { display: none; }
+.info-box[hidden] { display: none !important; }
 
 .info-box.warning {
   background: #fff8e9;
