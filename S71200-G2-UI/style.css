@@ -774,6 +774,11 @@ button { cursor: pointer; }
 
 
 @media (max-width: 760px) {
+  .page-shell {
+    padding-top: calc(env(safe-area-inset-top) + 36px);
+    padding-bottom: 28px;
+  }
+
   body {
     background: #f8fafc;
   }
@@ -824,10 +829,6 @@ button { cursor: pointer; }
 
   .mobile-menu-btn {
     display: none;
-  }
-
-  .page-shell {
-    padding-top: 16px;
   }
 
   .hero {
