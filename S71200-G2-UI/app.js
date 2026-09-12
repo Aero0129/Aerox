@@ -556,7 +556,6 @@
         <div class="product-main">
           ${partNumberWithCopy(p.partNo, "h3")}
           <p class="desc">${esc(p.description || "S7-1200 G2 產品")}</p>
-          ${p.category ? `<div class="category">${esc(p.category)}</div>` : ""}
         </div>
         ${specGrid(p)}
       </article>

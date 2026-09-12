@@ -1,4 +1,4 @@
-const CACHE_NAME = "s7-1200-g2-finder-shell-v15";
+const CACHE_NAME = "s7-1200-g2-finder-shell-v16";
 
 const ROOT_URL = new URL("./", self.location.href).href;
 const INDEX_URL = new URL("./index.html", self.location.href).href;
