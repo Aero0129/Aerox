@@ -40,7 +40,8 @@
     statusText: $("#statusText"),
     footerUpdate: $("#footerUpdate"),
     reloadDataBtn: $("#reloadDataBtn"),
-    switchSearchBtn: $("#switchSearchBtn")
+    switchSearchBtn: $("#switchSearchBtn"),
+    bottomHelp: $("#help")
   };
 
   function clean(v) {
@@ -219,6 +220,25 @@
 
   function hideMessage() {
     el.messageBox.hidden = true;
+  }
+
+  function showEmptyState(mode) {
+    el.results.innerHTML = "";
+    el.messageBox.hidden = false;
+    el.messageBox.className = "info-box empty-state";
+
+    const isIo = mode === "io";
+    el.messageBox.innerHTML = `
+      <span class="empty-search-icon">⌕</span>
+      <div>
+        <strong>尚未搜尋</strong>
+        <p>${isIo
+          ? "輸入 I/O 數量後按「搜尋」，即可查看符合條件的產品。"
+          : "輸入 MLFB / 料號後按「搜尋」，即可查看對應產品。"}</p>
+      </div>
+    `;
+
+    el.bottomHelp.hidden = true;
   }
 
   function buildSheetUrl(callbackName) {
@@ -494,7 +514,8 @@
       resultCount: el.resultCount.textContent,
       messageHidden: el.messageBox.hidden,
       messageClass: el.messageBox.className,
-      messageHtml: el.messageBox.innerHTML
+      messageHtml: el.messageBox.innerHTML,
+      bottomHelpHidden: el.bottomHelp.hidden
     };
   }
 
@@ -507,19 +528,13 @@
       el.messageBox.hidden = saved.messageHidden;
       el.messageBox.className = saved.messageClass;
       el.messageBox.innerHTML = saved.messageHtml;
+      el.bottomHelp.hidden = saved.bottomHelpHidden ?? true;
       return;
     }
 
     el.results.innerHTML = "";
     el.resultCount.textContent = "尚未搜尋";
-
-    showMessage(
-      "",
-      mode === "io" ? "依 I/O 規格查詢" : "依 MLFB / 料號查詢",
-      mode === "io"
-        ? "輸入需要的 DI / DO / AI / AO 數量後按搜尋。"
-        : "輸入舊料號或部分料號後按搜尋。"
-    );
+    showEmptyState(mode);
   }
 
   function switchMode(mode) {
@@ -562,6 +577,7 @@
 
   function searchIO() {
     if (!database.length) {
+      el.bottomHelp.hidden = true;
       showMessage("warning", "資料尚未載入", "請稍候資料同步完成。");
       return;
     }
@@ -610,11 +626,13 @@
     if (!sorted.length) {
       el.resultCount.textContent = "找不到符合條件的產品";
       showMessage("warning", "找不到符合需求的 S7-1200 G2 產品", "請降低數量，只輸入單顆模組I/O 數量，非需求總數。");
+      el.bottomHelp.hidden = false;
       saveResultView("io");
       return;
     }
 
     el.resultCount.textContent = `找到 ${sorted.length} 筆符合的產品`;
+    el.bottomHelp.hidden = false;
 
     el.results.innerHTML = sorted.slice(0, 30).map((p, i) => `
       <article class="result-card ${i === 0 ? "recommended" : ""}">
@@ -632,6 +650,7 @@
 
   function searchMLFB() {
     if (!database.length) {
+      el.bottomHelp.hidden = true;
       showMessage("warning", "資料尚未載入", "請稍候資料同步完成。");
       return;
     }
@@ -726,12 +745,14 @@
     if (!rows.length) {
       el.resultCount.textContent = "找不到對應資料";
       showMessage("warning", "找不到 Migration 資料", "請確認料號是否正確，也可以只輸入部分料號。");
+      el.bottomHelp.hidden = false;
       saveResultView("mlfb");
       return;
     }
 
     const groups = groupRows(rows).slice(0, 25);
     el.resultCount.textContent = `找到 ${groups.length} 組舊料號對應資料`;
+    el.bottomHelp.hidden = false;
 
     el.results.innerHTML = groups.map((g) => {
       const first = g.successors[0] || {};
