@@ -116,7 +116,7 @@ button { cursor: pointer; }
 
 .hero {
   display: block;
-  margin-bottom: 20px;
+  margin-bottom: 26px;
 }
 
 .hero-copy h1 {
@@ -282,7 +282,7 @@ button { cursor: pointer; }
 }
 
 .result-section {
-  margin-top: 26px;
+  margin-top: 32px;
 }
 
 .result-title-row {
@@ -335,7 +335,7 @@ button { cursor: pointer; }
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
+  padding: 20px;
   color: #285a82;
 }
 
@@ -380,7 +380,7 @@ button { cursor: pointer; }
   grid-template-columns: 110px minmax(0, 1fr) auto;
   align-items: center;
   gap: 20px;
-  padding: 18px 20px;
+  padding: 20px;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -606,13 +606,13 @@ button { cursor: pointer; }
 }
 
 .bottom-help {
-  margin-top: 16px;
+  margin-top: 28px;
   min-height: 70px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 14px;
-  padding: 14px 18px;
+  padding: 20px;
   border-radius: 12px;
   background: #eaf5ff;
   color: #1b5f99;
@@ -648,7 +648,7 @@ button { cursor: pointer; }
 }
 
 .status-card {
-  margin-top: 14px;
+  margin-top: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -700,7 +700,7 @@ button { cursor: pointer; }
 }
 
 .faq-block {
-  margin-top: 36px;
+  margin-top: 40px;
   padding-top: 24px;
   border-top: 1px solid var(--border);
 }
@@ -714,7 +714,7 @@ button { cursor: pointer; }
   border: 1px solid var(--border);
   border-radius: 10px;
   background: white;
-  padding: 13px 15px;
+  padding: 18px 20px;
   margin-top: 8px;
 }
 
@@ -774,11 +774,6 @@ button { cursor: pointer; }
 
 
 @media (max-width: 760px) {
-  .page-shell {
-    padding-top: calc(env(safe-area-inset-top) + 36px);
-    padding-bottom: 28px;
-  }
-
   body {
     background: #f8fafc;
   }
@@ -829,6 +824,10 @@ button { cursor: pointer; }
 
   .mobile-menu-btn {
     display: none;
+  }
+
+  .page-shell {
+    padding-top: 16px;
   }
 
   .hero {
@@ -1059,4 +1058,43 @@ button { cursor: pointer; }
 
 #footerUpdate[hidden] {
   display: none !important;
+}
+
+
+@media (max-width: 760px) {
+  .page-shell {
+    padding-top: calc(env(safe-area-inset-top) + 48px);
+    padding-bottom: 30px;
+  }
+
+  .hero {
+    margin-bottom: 28px;
+  }
+
+  .result-section {
+    margin-top: 34px;
+  }
+
+  .result-card,
+  .info-box,
+  .bottom-help {
+    padding: 20px;
+  }
+
+  .status-card,
+  .faq-block details {
+    padding: 18px 20px;
+  }
+
+  .bottom-help {
+    margin-top: 28px;
+  }
+
+  .status-card {
+    margin-top: 26px;
+  }
+
+  .faq-block {
+    margin-top: 42px;
+  }
 }
