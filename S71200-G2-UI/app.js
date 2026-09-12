@@ -131,10 +131,18 @@
     if (!("serviceWorker" in navigator)) return;
     if (location.protocol !== "https:" && location.hostname !== "localhost") return;
 
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("./service-worker.js")
-        .catch((err) => console.warn("Service Worker 註冊失敗：", err));
+    window.addEventListener("load", async () => {
+      try {
+        const registration = await navigator.serviceWorker.register(
+          "./service-worker.js",
+          { updateViaCache: "none" }
+        );
+
+        // 每次開啟網站都主動檢查 Service Worker 是否有新版。
+        await registration.update();
+      } catch (err) {
+        console.warn("Service Worker 註冊或更新失敗：", err);
+      }
     });
   }
 
@@ -556,6 +564,7 @@
         <div class="product-main">
           ${partNumberWithCopy(p.partNo, "h3")}
           <p class="desc">${esc(p.description || "S7-1200 G2 產品")}</p>
+          ${p.category ? `<div class="category">${esc(p.category)}</div>` : ""}
         </div>
         ${specGrid(p)}
       </article>
