@@ -56,6 +56,50 @@
     return clean(v).toUpperCase().replace(/[^A-Z0-9]/g, "");
   }
 
+  function normalizeDescription(v) {
+    return clean(v).toUpperCase();
+  }
+
+  function compactDescription(v) {
+    return normalizeDescription(v).replace(/[^A-Z0-9]/g, "");
+  }
+
+  function escapeRegExp(v) {
+    return String(v).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function descriptionMatches(description, query) {
+    const text = normalizeDescription(description);
+    const q = normalizeDescription(query);
+
+    if (!q || q.length < 2) return false;
+
+    const compactQ = compactDescription(q);
+
+    // 純英文字母縮寫：
+    // CP / CM / SB / SM / CB / CPU ... 都必須是獨立字詞。
+    // 例如 CP 不會誤中 CPU；CPU 則會正常找到 CPU。
+    if (/^[A-Z]+$/.test(compactQ)) {
+      const re = new RegExp(
+        `(^|[^A-Z0-9])${escapeRegExp(compactQ)}(?=$|[^A-Z0-9])`,
+        "i"
+      );
+      return re.test(text);
+    }
+
+    // 英文縮寫 + 數字：
+    // 忽略空格與符號，例如：
+    // CM1、CM 1、CM-1 都可匹配 CM 1241
+    // CP1 可匹配 CP 1243-1
+    // SB1 可匹配 SB 1221
+    if (/^(?=.*[A-Z])(?=.*\d)[A-Z0-9]+$/.test(compactQ)) {
+      return compactDescription(text).includes(compactQ);
+    }
+
+    // 一般文字仍採包含搜尋。
+    return text.includes(q);
+  }
+
   function containsTcOrRtd(...values) {
     const text = values.map(v => clean(v)).join(" ").toUpperCase();
     return /(^|[^A-Z0-9])(TC|RTD)(?=$|[^A-Z0-9])/.test(text);
@@ -310,7 +354,7 @@
         showMessage(
           "error",
           "無法讀取 Migration_DB",
-          "請確認網路連線，以及 Google Sheet 已允許知道連結者檢視，工作表名稱為 Migration_DB。"
+          "請確認網路連線後再試一次。"
         );
       }
     } finally {
@@ -565,7 +609,7 @@
 
     if (!sorted.length) {
       el.resultCount.textContent = "找不到符合條件的產品";
-      showMessage("warning", "找不到符合需求的 S7-1200 G2 產品", "請降低部分 I/O 數量、將不限制的欄位留白，或改用 MLFB / 料號查詢。");
+      showMessage("warning", "找不到符合需求的 S7-1200 G2 產品", "請降低數量，只輸入單顆模組I/O 數量，非需求總數。");
       saveResultView("io");
       return;
     }
@@ -599,15 +643,14 @@
     }
 
     const qNorm = normalizePart(raw);
-    const qText = raw.toLowerCase();
 
     let rows = database.filter((r) => {
       const oldNorm = clean(r.Old_Part_Normalized) || normalizePart(r.Old_Part_No);
       const newNorm = clean(r.New_Part_Normalized) || normalizePart(r.New_Part_No);
-      const desc = `${clean(r.Old_Description)} ${clean(r.New_Description)}`.toLowerCase();
+      const desc = `${clean(r.Old_Description)} ${clean(r.New_Description)}`;
 
       return (qNorm.length >= 2 && (oldNorm.includes(qNorm) || newNorm.includes(qNorm)))
-        || (qText.length >= 2 && desc.includes(qText));
+        || descriptionMatches(desc, raw);
     });
 
     const exact = rows.filter((r) => {
