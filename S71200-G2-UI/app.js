@@ -644,16 +644,21 @@
     el.resultCount.textContent = `找到 ${sorted.length} 筆符合的產品`;
     el.bottomHelp.hidden = false;
 
-    el.results.innerHTML = sorted.slice(0, 30).map((p, i) => `
-      <article class="result-card ${i === 0 ? "recommended" : ""}">
-        <div><span class="badge ${i === 0 ? "best" : ""}">${i === 0 ? "推薦" : "其他選項"}</span></div>
+    const recommendedCount = sorted.length > 3 ? 3 : 1;
+
+    el.results.innerHTML = sorted.slice(0, 30).map((p, i) => {
+      const isRecommended = i < recommendedCount;
+      return `
+      <article class="result-card ${isRecommended ? "recommended" : ""}">
+        <div><span class="badge ${isRecommended ? "best" : ""}">${isRecommended ? "推薦" : "其他選項"}</span></div>
         <div class="product-main">
           ${partNumberWithCopy(p.partNo, "h3")}
           <p class="desc">${esc(p.description || "S7-1200 G2 產品")}</p>
         </div>
         ${specGrid(p)}
       </article>
-    `).join("");
+    `;
+    }).join("");
 
     saveResultView("io");
   }
