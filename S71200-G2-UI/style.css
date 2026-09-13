@@ -976,17 +976,22 @@ button { cursor: pointer; }
   }
 
   .result-title-left {
-    display: block;
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    min-width: 0;
   }
 
   .result-title-left h2 {
     font-size: 20px;
+    flex: 0 0 auto;
   }
 
   .result-title-left span {
-    display: block;
-    margin-top: 4px;
-    font-size: 12px;
+    display: inline;
+    margin-top: 0;
+    font-size: 11px;
+    white-space: nowrap;
   }
 
   .sort-control span {
