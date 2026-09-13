@@ -111,6 +111,11 @@
     return /(^|[^A-Z0-9])5\s*VDC(?=$|[^A-Z0-9])/.test(text);
   }
 
+  function containsIoFailSafe(description) {
+    const text = clean(description).toLowerCase();
+    return text.includes("digital fail-safe") || text.includes("digital f-i/o");
+  }
+
   function esc(v) {
     return String(v ?? "")
       .replaceAll("&", "&amp;")
@@ -402,7 +407,8 @@
         priority: num(r.Priority) || 999,
         successorType: clean(r.Successor_Type),
         tcRtd: containsTcOrRtd(r.Old_Description, r.New_Description),
-        has5Vdc: contains5Vdc(r.Old_Description, r.New_Description)
+        has5Vdc: contains5Vdc(r.Old_Description, r.New_Description),
+        ioFailSafe: containsIoFailSafe(r.New_Description)
       };
 
       const existing = map.get(key);
@@ -414,12 +420,14 @@
         // 只要任一列的 Old/New Description 含 TC/RTD 或 5VDC，就保留特殊排序標記。
         existing.tcRtd = existing.tcRtd || item.tcRtd;
         existing.has5Vdc = existing.has5Vdc || item.has5Vdc;
+        existing.ioFailSafe = existing.ioFailSafe || item.ioFailSafe;
 
         if (item.priority < existing.priority) {
           map.set(key, {
             ...item,
             tcRtd: existing.tcRtd || item.tcRtd,
-            has5Vdc: existing.has5Vdc || item.has5Vdc
+            has5Vdc: existing.has5Vdc || item.has5Vdc,
+            ioFailSafe: existing.ioFailSafe || item.ioFailSafe
           });
         }
       }
@@ -609,12 +617,14 @@
     const sorted = [...rows];
     if (el.sortSelect.value === "part") {
       sorted.sort((a,b) =>
+        Number(Boolean(a.ioFailSafe)) - Number(Boolean(b.ioFailSafe)) ||
         Number(Boolean(a.has5Vdc)) - Number(Boolean(b.has5Vdc)) ||
         Number(Boolean(a.tcRtd)) - Number(Boolean(b.tcRtd)) ||
         a.partNo.localeCompare(b.partNo, "en")
       );
     } else {
       sorted.sort((a,b) =>
+        Number(Boolean(a.ioFailSafe)) - Number(Boolean(b.ioFailSafe)) ||
         Number(Boolean(a.has5Vdc)) - Number(Boolean(b.has5Vdc)) ||
         Number(Boolean(a.tcRtd)) - Number(Boolean(b.tcRtd)) ||
         a.score - b.score ||
