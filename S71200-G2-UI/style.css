@@ -571,7 +571,9 @@ button { cursor: pointer; }
 
 .migration-bottom {
   display: grid;
-  grid-template-columns: 176px minmax(0, 1fr);
+  /* 與上方舊版 / 箭頭 / 新版使用相同三欄比例，
+     讓下方規格區可精準對齊新版料號起點 */
+  grid-template-columns: minmax(0, 1fr) 100px minmax(0, 1fr);
   align-items: center;
   gap: 0;
   padding: 0 38px 22px;
@@ -587,6 +589,7 @@ button { cursor: pointer; }
 }
 
 .migration-bottom-label {
+  grid-column: 1;
   color: #284563;
   font-size: 16px;
   font-weight: 500;
@@ -596,8 +599,11 @@ button { cursor: pointer; }
 }
 
 .migration-bottom-specs {
+  grid-column: 3;
   display: flex;
   justify-content: flex-start;
+  /* 與 .new-side 的 padding-left 相同，因此 DI 起點
+     會與新版料號第一個字對齊 */
   padding-left: 44px;
 }
 
