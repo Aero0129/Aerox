@@ -785,7 +785,6 @@
           </div>
 
           <div class="migration-bottom">
-            <div class="migration-bottom-label">I/O 規格</div>
             <div class="migration-bottom-specs">
               ${specGrid({
                 di: r.New_DI,
