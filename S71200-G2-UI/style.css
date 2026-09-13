@@ -597,8 +597,8 @@ button { cursor: pointer; }
 
 .migration-bottom-specs {
   display: flex;
-  justify-content: flex-end;
-  padding-left: 28px;
+  justify-content: flex-start;
+  padding-left: 44px;
 }
 
 .successor-list {
