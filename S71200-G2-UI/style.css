@@ -1278,3 +1278,153 @@ button { cursor: pointer; }
     padding-left: 0;
   }
 }
+
+
+/* v38: MLFB mobile result layout */
+@media (max-width: 760px) {
+  .migration-card {
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .migration-head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 18px 18px 0;
+    background: #fff;
+  }
+
+  .migration-side {
+    min-width: 0;
+  }
+
+  .old-side,
+  .new-side {
+    padding: 0;
+  }
+
+  .migration-side small {
+    margin-bottom: 7px;
+    font-size: 13px;
+    line-height: 1.25;
+    font-weight: 800;
+  }
+
+  .migration-side h3 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.22;
+    white-space: nowrap;
+    word-break: normal;
+  }
+
+  .migration-side p {
+    margin: 7px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .migration-side .part-number-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .migration-side .copy-part-btn {
+    flex: none;
+    padding: 7px 11px;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .desktop-arrow {
+    display: block;
+    min-height: 0;
+    margin: 13px 0 11px;
+    border: 0;
+  }
+
+  .arrow {
+    transform: none;
+    font-size: 0;
+    line-height: 1;
+  }
+
+  .arrow::before {
+    content: "↓";
+    display: block;
+    color: #2b5f95;
+    font-size: 32px;
+    line-height: 1;
+    font-weight: 500;
+  }
+
+  .new-side {
+    padding-bottom: 16px;
+  }
+
+  .migration-bottom {
+    display: block;
+    padding: 0 18px 18px;
+  }
+
+  .migration-bottom::before {
+    content: "";
+    display: block;
+    height: 1px;
+    margin: 0 0 13px;
+    background: #e3ebf4;
+  }
+
+  .migration-bottom-label {
+    display: none;
+  }
+
+  .migration-bottom-specs {
+    display: block;
+    padding-left: 0;
+  }
+
+  .migration-bottom .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 9px;
+    width: 100%;
+  }
+
+  .migration-bottom .spec {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .migration-bottom .spec strong {
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--navy);
+    font-size: 21px;
+    line-height: 1.15;
+  }
+
+  .migration-bottom .spec span {
+    margin-top: 0;
+    color: #5d6c82;
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .migration-bottom .spec {
+    padding: 10px 6px 9px;
+    border-radius: 10px;
+    background: #eef3f8;
+    text-align: center;
+  }
+}
