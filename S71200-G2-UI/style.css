@@ -499,25 +499,31 @@ button { cursor: pointer; }
 
 .migration-card {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   background: white;
+  padding: 0;
 }
 
 .migration-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 54px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 100px minmax(0, 1fr);
   align-items: center;
-  gap: 18px;
-  padding: 18px 20px;
-  background: #f9fbfd;
+  gap: 0;
+  padding: 24px 38px 22px;
+  background: #fff;
+}
+
+.migration-side {
+  min-width: 0;
 }
 
 .migration-side small {
   display: block;
   color: #6a7890;
-  margin-bottom: 6px;
-  font-weight: 700;
+  margin-bottom: 8px;
+  font-weight: 800;
+  font-size: 16px;
 }
 
 .migration-side.new small {
@@ -526,7 +532,8 @@ button { cursor: pointer; }
 
 .migration-side h3 {
   margin: 0 0 4px;
-  font-size: 17px;
+  font-size: 24px;
+  line-height: 1.2;
   color: var(--navy);
   word-break: break-word;
 }
@@ -534,28 +541,72 @@ button { cursor: pointer; }
 .migration-side p {
   margin: 0;
   color: #5f6f87;
-  font-size: 13px;
+  font-size: 18px;
   line-height: 1.45;
+}
+
+.old-side {
+  padding-right: 44px;
+}
+
+.new-side {
+  padding-left: 44px;
+}
+
+.desktop-arrow {
+  display: grid;
+  place-items: center;
+  min-height: 112px;
+  border-left: 1px solid #e3ebf4;
+  border-right: 1px solid #e3ebf4;
 }
 
 .arrow {
   text-align: center;
-  color: #244569;
-  font-size: 30px;
+  color: #2b67a9;
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.migration-bottom {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  align-items: center;
+  gap: 0;
+  padding: 0 38px 22px;
+}
+
+.migration-bottom::before {
+  content: "";
+  grid-column: 1 / -1;
+  display: block;
+  height: 1px;
+  margin-bottom: 22px;
+  background: #e3ebf4;
+}
+
+.migration-bottom-label {
+  color: #284563;
+  font-size: 16px;
+  font-weight: 500;
+  padding-right: 28px;
+  border-right: 1px solid #e3ebf4;
+  line-height: 1.1;
+}
+
+.migration-bottom-specs {
+  display: flex;
+  justify-content: flex-end;
+  padding-left: 28px;
 }
 
 .successor-list {
-  display: grid;
-  border-top: 1px solid var(--border);
+  display: none;
 }
 
 .successor {
-  display: grid;
-  /* 第一欄加寬，避免「建議替代（Recommended）」覆蓋右側料號 */
-  grid-template-columns: 210px minmax(0, 1fr) auto;
-  gap: 18px;
-  align-items: center;
-  padding: 15px 20px;
+  display: none;
 }
 
 .successor-main {
@@ -1162,5 +1213,68 @@ button { cursor: pointer; }
 
   .info-box.empty-state p {
     font-size: 13px;
+  }
+}
+
+
+@media (max-width: 760px) {
+  .migration-card {
+    border-radius: 14px;
+  }
+
+  .migration-head {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px 16px 14px;
+  }
+
+  .old-side,
+  .new-side {
+    padding: 0;
+  }
+
+  .desktop-arrow {
+    min-height: auto;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+    font-size: 34px;
+  }
+
+  .migration-side small {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .migration-side h3 {
+    font-size: 15px;
+  }
+
+  .migration-side p {
+    font-size: 12px;
+  }
+
+  .migration-bottom {
+    grid-template-columns: 1fr;
+    padding: 0 16px 16px;
+  }
+
+  .migration-bottom::before {
+    margin-bottom: 14px;
+  }
+
+  .migration-bottom-label {
+    border-right: 0;
+    padding-right: 0;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .migration-bottom-specs {
+    justify-content: flex-start;
+    padding-left: 0;
   }
 }

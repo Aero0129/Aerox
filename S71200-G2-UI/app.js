@@ -764,57 +764,42 @@
     el.resultCount.textContent = `找到 ${groups.length} 組舊料號對應資料`;
     el.bottomHelp.hidden = false;
 
-    el.results.innerHTML = groups.map((g) => {
-      const first = g.successors[0] || {};
-      return `
+    const cards = groups.flatMap((g) => {
+      const successors = g.successors?.length ? g.successors : [{}];
+      return successors.map((r) => `
         <article class="migration-card">
-          <div class="migration-head">
-            <div class="migration-side">
+          <div class="migration-head migration-head-desktop">
+            <div class="migration-side old-side">
               <small>舊版（S7-1200）</small>
               ${partNumberWithCopy(g.oldPart, "h3")}
               <p>${esc(g.oldDesc || "產品描述未提供")}</p>
             </div>
 
-            <div class="arrow">→</div>
+            <div class="arrow desktop-arrow">→</div>
 
-            <div class="migration-side new">
+            <div class="migration-side new new-side">
               <small>新版（S7-1200 G2）</small>
-              ${partNumberWithCopy(first.New_Part_No || "", "h3")}
-              <p>${esc(first.New_Description || "產品描述未提供")}</p>
+              ${partNumberWithCopy(r.New_Part_No || "", "h3")}
+              <p>${esc(r.New_Description || "產品描述未提供")}</p>
             </div>
           </div>
 
-          <div class="successor-list">
-            ${g.successors.map((r) => {
-              const type = clean(r.Successor_Type).toLowerCase();
-              const rec = type === "recommended";
-              const alt = type === "alternative";
-              const typeText = rec ? "建議替代（Recommended）"
-                : alt ? "替代方案（Alternative）"
-                : (clean(r.Successor_Type) || "替代產品");
-
-              return `
-                <div class="successor ${rec ? "recommended" : ""}">
-                  <span class="successor-type ${rec ? "recommended" : alt ? "alternative" : ""}">${esc(typeText)}</span>
-
-                  <div class="successor-main">
-                    ${partNumberWithCopy(r.New_Part_No, "h4")}
-                    <p>${esc(r.New_Description || "產品描述未提供")}</p>
-                  </div>
-
-                  ${specGrid({
-                    di: r.New_DI,
-                    do: r.New_DO,
-                    ai: r.New_AI,
-                    ao: r.New_AO
-                  })}
-                </div>
-              `;
-            }).join("")}
+          <div class="migration-bottom">
+            <div class="migration-bottom-label">I/O 規格</div>
+            <div class="migration-bottom-specs">
+              ${specGrid({
+                di: r.New_DI,
+                do: r.New_DO,
+                ai: r.New_AI,
+                ao: r.New_AO
+              })}
+            </div>
           </div>
         </article>
-      `;
-    }).join("");
+      `);
+    });
+
+    el.results.innerHTML = cards.join("");
 
     saveResultView("mlfb");
   }
