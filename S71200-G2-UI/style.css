@@ -1291,6 +1291,9 @@ button { cursor: pointer; }
 }
 
 
+/* v44: Mobile DI/DO/AI/AO style unified across I/O and MLFB results.
+   MLFB uses the same value-box + label-below pattern as I/O search. */
+
 /* v38: MLFB mobile result layout */
 @media (max-width: 760px) {
   .migration-card {
@@ -1402,40 +1405,39 @@ button { cursor: pointer; }
 
   .migration-bottom .spec-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 9px;
+    grid-template-columns: repeat(4, 1fr);
     width: 100%;
+    gap: 5px;
   }
 
   .migration-bottom .spec {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 3px;
+    display: block;
     min-width: 0;
+    text-align: center;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
   }
 
   .migration-bottom .spec strong {
-    height: auto;
+    display: grid;
+    place-items: center;
+    height: 30px;
     min-height: 0;
     padding: 0;
-    background: transparent;
+    border-radius: 7px;
+    background: #eef2f6;
     color: var(--navy);
-    font-size: 21px;
-    line-height: 1.15;
+    font-size: 13px;
+    line-height: 1;
   }
 
   .migration-bottom .spec span {
-    margin-top: 0;
+    display: block;
+    margin-top: 5px;
     color: #5d6c82;
-    font-size: 11px;
-    line-height: 1.2;
+    font-size: 9px;
+    line-height: 1;
     font-weight: 700;
-  }
-
-  .migration-bottom .spec {
-    padding: 10px 6px 9px;
-    border-radius: 10px;
-    background: #eef3f8;
-    text-align: center;
   }
 }

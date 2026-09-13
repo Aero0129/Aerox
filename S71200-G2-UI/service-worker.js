@@ -1,4 +1,4 @@
-const CACHE_NAME = "s7-1200-g2-finder-shell-v42";
+const CACHE_NAME = "s7-1200-g2-finder-shell-v44";
 const CACHE_PREFIX = "s7-1200-g2-finder-shell-";
 
 const ROOT_URL = new URL("./", self.location.href).href;
