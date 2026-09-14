@@ -7,6 +7,11 @@
   const CACHE_TIME_KEY = "s71200g2_migration_db_time_v2";
   const VISITOR_API_URL = "https://script.google.com/macros/s/AKfycbyl0-vuo1b9N1gtK4L22vmwJhE5CWRjDjwEL9W_HdJpWgFQRYou2MKqpiGT9DlbMLclbA/exec";
 
+  // Visitor statistics API.
+  // Paste your deployed Google Apps Script Web App /exec URL between the quotes.
+  // Leave empty to completely disable statistics without affecting search.
+  const VISITOR_API_URL = "";
+
   let database = [];
   let products = [];
   let currentMode = "io";
@@ -565,6 +570,85 @@
     restoreResultView(mode);
   }
 
+  // ----- Visitor statistics (non-blocking) -----
+  const trackingCooldown = {};
+
+  function getVisitorId() {
+    const key = "s7_g2_visitor_id";
+
+    try {
+      let visitorId = localStorage.getItem(key);
+
+      if (!visitorId) {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+          visitorId = window.crypto.randomUUID();
+        } else {
+          visitorId =
+            "visitor_" +
+            Date.now() +
+            "_" +
+            Math.random().toString(36).slice(2);
+        }
+
+        localStorage.setItem(key, visitorId);
+      }
+
+      return visitorId;
+    } catch (error) {
+      console.warn("Visitor ID unavailable:", error);
+      return null;
+    }
+  }
+
+  function trackEvent(eventType) {
+    try {
+      // Statistics are optional. If URL is blank, do nothing.
+      if (!VISITOR_API_URL) return;
+
+      const allowedEvents = new Set([
+        "visit",
+        "io_search",
+        "mlfb_search"
+      ]);
+
+      if (!allowedEvents.has(eventType)) return;
+
+      const now = Date.now();
+
+      // Prevent accidental double counting from rapid repeated clicks.
+      if (
+        trackingCooldown[eventType] &&
+        now - trackingCooldown[eventType] < 500
+      ) {
+        return;
+      }
+
+      trackingCooldown[eventType] = now;
+
+      const visitorId = getVisitorId();
+      if (!visitorId) return;
+
+      // Fire-and-forget: NEVER await this request.
+      // Search and page initialization continue immediately even if
+      // Apps Script / Google Sheet is slow or unavailable.
+      fetch(VISITOR_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          visitorId,
+          eventType
+        }),
+        keepalive: true
+      }).catch((error) => {
+        console.warn("Visitor tracking failed:", error);
+      });
+    } catch (error) {
+      console.warn("Visitor tracking error:", error);
+    }
+  }
+
   function ioReq() {
     const get = (input) => input.value.trim() === "" ? null : Math.max(0, num(input.value));
 
@@ -599,6 +683,8 @@
       window.alert("請輸入至少一項 I/O 需求，例如 4DO、2AI 或 16DI / 16DO。");
       return;
     }
+
+    trackEvent("io_search");
 
     lastIoResults = products
       // I/O 規格搜尋只找 G2 模組，不顯示 CPU。
@@ -676,6 +762,8 @@
       window.alert("請輸入舊 MLFB / 料號，例如 6ES7211-1AE40-0XB0。");
       return;
     }
+
+    trackEvent("mlfb_search");
 
     const qNorm = normalizePart(raw);
 
@@ -860,7 +948,193 @@
     loadDatabase();
   });
 
+  // ===== Mobile Pull-to-Refresh (safe / isolated) =====
+  // 桌機版完全不執行此功能；即使手機端初始化失敗，也不影響原本功能。
+  function initPullToRefresh() {
+    // 第一行就先擋掉桌機版，避免任何 DOM / 狀態修改。
+    const mobileMedia = window.matchMedia("(max-width: 760px)");
+    if (!mobileMedia.matches) return;
+
+    // 支援一般手機瀏覽器與「加入主畫面」standalone 模式。
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
+
+    if (document.getElementById("pullRefreshIndicator")) return;
+
+    const style = document.createElement("style");
+    style.id = "pullRefreshStyle";
+    style.textContent = `
+      #pullRefreshIndicator {
+        position: fixed;
+        left: 50%;
+        top: calc(env(safe-area-inset-top, 0px) + 10px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 126px;
+        height: 38px;
+        padding: 0 14px;
+        border: 1px solid rgba(183, 199, 216, 0.9);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.96);
+        color: #425b76;
+        box-shadow: 0 4px 14px rgba(26, 50, 75, 0.10);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, -64px);
+        transition: transform 160ms ease, opacity 160ms ease, color 160ms ease;
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+      }
+      #pullRefreshIndicator.visible { opacity: 1; }
+      #pullRefreshIndicator.ready { color: #087f5b; }
+      #pullRefreshIndicator.refreshing .pull-refresh-icon {
+        animation: pullRefreshSpin 0.75s linear infinite;
+      }
+      @keyframes pullRefreshSpin {
+        to { transform: rotate(360deg); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #pullRefreshIndicator { transition: none; }
+        #pullRefreshIndicator.refreshing .pull-refresh-icon { animation: none; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    const indicator = document.createElement("div");
+    indicator.id = "pullRefreshIndicator";
+    indicator.setAttribute("aria-hidden", "true");
+    indicator.setAttribute("data-display-mode", isStandalone ? "standalone" : "browser");
+    indicator.innerHTML = `
+      <span class="pull-refresh-icon" aria-hidden="true">↓</span>
+      <span class="pull-refresh-text">下拉更新</span>
+    `;
+    document.body.appendChild(indicator);
+
+    const icon = indicator.querySelector(".pull-refresh-icon");
+    const text = indicator.querySelector(".pull-refresh-text");
+
+    const THRESHOLD = 82;
+    const SHOW_AFTER = 18;
+    const MAX_PULL = 124;
+
+    let startY = 0;
+    let distance = 0;
+    let pulling = false;
+    let refreshing = false;
+
+    function isInteractiveTarget(target) {
+      if (!target || typeof target.closest !== "function") return false;
+      return Boolean(target.closest("input, textarea, select, button, a, [contenteditable='true']"));
+    }
+
+    function resetIndicator() {
+      distance = 0;
+      indicator.classList.remove("visible", "ready", "refreshing");
+      indicator.style.transform = "translate(-50%, -64px)";
+      icon.textContent = "↓";
+      text.textContent = "下拉更新";
+    }
+
+    function updateIndicator() {
+      const clamped = Math.min(Math.max(distance, 0), MAX_PULL);
+      const eased = clamped * 0.58;
+      indicator.style.transform = `translate(-50%, ${-54 + eased}px)`;
+
+      if (distance >= SHOW_AFTER) indicator.classList.add("visible");
+      else indicator.classList.remove("visible");
+
+      if (distance >= THRESHOLD) {
+        indicator.classList.add("ready");
+        icon.textContent = "↻";
+        text.textContent = "放開更新";
+      } else {
+        indicator.classList.remove("ready");
+        icon.textContent = "↓";
+        text.textContent = "下拉更新";
+      }
+    }
+
+    document.addEventListener("touchstart", (event) => {
+      if (refreshing || !mobileMedia.matches) return;
+      if (!event.touches || event.touches.length !== 1) return;
+      if (window.scrollY > 0) return;
+      if (isInteractiveTarget(event.target)) return;
+
+      startY = event.touches[0].clientY;
+      distance = 0;
+      pulling = true;
+    }, { passive: true });
+
+    document.addEventListener("touchmove", (event) => {
+      if (!pulling || refreshing) return;
+      if (!event.touches || event.touches.length !== 1) return;
+
+      distance = event.touches[0].clientY - startY;
+
+      if (distance <= 0 || window.scrollY > 0) {
+        pulling = false;
+        resetIndicator();
+        return;
+      }
+
+      if (event.cancelable) event.preventDefault();
+      updateIndicator();
+    }, { passive: false });
+
+    document.addEventListener("touchend", () => {
+      if (!pulling || refreshing) return;
+      pulling = false;
+
+      if (distance >= THRESHOLD) {
+        refreshing = true;
+        indicator.classList.remove("ready");
+        indicator.classList.add("visible", "refreshing");
+        indicator.style.transform = "translate(-50%, 0)";
+        icon.textContent = "↻";
+        text.textContent = "更新中…";
+
+        window.setTimeout(() => {
+          window.location.reload();
+        }, 260);
+        return;
+      }
+
+      resetIndicator();
+    }, { passive: true });
+
+    document.addEventListener("touchcancel", () => {
+      if (refreshing) return;
+      pulling = false;
+      resetIndicator();
+    }, { passive: true });
+
+    // 不使用 optional method call，避免特定瀏覽器相容性問題。
+    if (typeof mobileMedia.addEventListener === "function") {
+      mobileMedia.addEventListener("change", (event) => {
+        if (!event.matches) resetIndicator();
+      });
+    }
+  }
+
+  // Pull-to-Refresh 必須和原本初始化完全隔離。
+  try {
+    initPullToRefresh();
+  } catch (err) {
+    console.warn("Pull-to-Refresh 初始化失敗，已略過：", err);
+  }
+
   registerServiceWorker();
   switchMode("io");
   loadDatabase();
+
+  // One visit per actual page load / reload.
+  // This request runs in the background and never blocks normal use.
+  trackEvent("visit");
 })();
