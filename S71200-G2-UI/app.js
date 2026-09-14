@@ -6,7 +6,7 @@
   const CACHE_KEY = "s71200g2_migration_db_v2";
   const CACHE_TIME_KEY = "s71200g2_migration_db_time_v2";
   const VISITOR_API_URL = "https://script.google.com/macros/s/AKfycbyl0-vuo1b9N1gtK4L22vmwJhE5CWRjDjwEL9W_HdJpWgFQRYou2MKqpiGT9DlbMLclbA/exec";
-
+  
   // Visitor statistics API.
   // Paste your deployed Google Apps Script Web App /exec URL between the quotes.
   // Leave empty to completely disable statistics without affecting search.
